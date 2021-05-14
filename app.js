@@ -67,6 +67,7 @@ function makeGrid(tiles,dinos)
     }
 }
 
+// Function for when Compare button is pressed
 function submitted(event)
 {
 
@@ -145,23 +146,23 @@ function submitted(event)
 }
 
 // Creates object with 4 main properties and a 3 member array of facts
-// Properties = Name , Height , Weight , Diet
+// Properties = Name , Weight , Height , Diet
 // Facts = Where , When , Fact
-function DinoConstructor (name,height,weight,diet,location,timeframe,fact)
+function DinoConstructor (name,weight,height,diet,location,timeframe,fact)
 {
     if (name == "Pigeon")
     {
         this.name = name;
-        this.height = height;
         this.weight = weight;
+        this.height = height;
         this.diet = diet;
         this.fact = [fact,fact,fact];
     }
     else
     {
         this.name = name;
-        this.height = height;
         this.weight = weight;
+        this.height = height;
         this.diet = diet;
         this.fact = [this.name + " were located in " + location,this.name + " lived during the " + timeframe + " period",fact];
         
@@ -176,19 +177,11 @@ DinoConstructor.prototype.getDiet = function() {return this.diet};
 // Create Method for random fact
 DinoConstructor.prototype.getFact = function() {return this.fact[Math.floor(Math.random() *3)]};
 
-// Pull in from dino.json and created using DinoConstructor function
-let testDino = new DinoConstructor ("Triceratops",13000,114,"herbavor","North America","Late Cretaceous","The largest known skull measures in at 5 feet long.");
-
 // On button click, prepare and display infographic
 let submitButton = document.querySelector('#btn');
 submitButton.addEventListener('click', submitted, false);
 
-
-// Create Dino Objects
-//let dinoData1 = require("./dino.json");
-//console.log(dinoData1);
-
-
+// Pull in from dino.json and created using DinoConstructor function
 fetch("https://raw.githubusercontent.com/udacity/Javascript/master/dino.json")
 .then(response => response.json())
 .then((fetchData) => 

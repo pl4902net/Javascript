@@ -191,6 +191,5 @@ fetch("https://raw.githubusercontent.com/udacity/Javascript/master/dino.json")
     tempDinoData.forEach(function(dino)
     {
         dinoData.push(new DinoConstructor (dino.species,dino.weight,dino.height,dino.diet,dino.where,dino.when,dino.fact));
-        console.log(dinoData);
     })
 })

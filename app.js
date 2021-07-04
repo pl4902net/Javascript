@@ -59,7 +59,7 @@ function makeGrid(tiles,dinos)
         tile.appendChild(image);
 // Create paragraph with compare & fact text
         let compareData = document.createElement('p');
-        let compareText = dinos[tileItem]['compare']+". "+dinos[tileItem]['fact'];
+        let compareText = dinos[tileItem]['fact'];
         compareData.appendChild(document.createTextNode(compareText));
         tile.appendChild(compareData);   
 // Add tile to grid
@@ -104,34 +104,47 @@ function submitted(event)
     else
     {
 // create array of objects to make grid from
-        let tileArray = []
-        let dinoCount = 0
+        let tileArray = [];
+        let dinoCount = 0;
+        let ranNum = 0;
+        let workArray = [];
         for (let items = 0; items < 9; items++)
         {
             let workingObject = {};
-            let compareText = ""
+            let compareText = "";
+
 // Create special human object to be middle tile
             if (items == 4)
             {
                 workingObject['name'] = humanData['name'];
-                if (boolHeight == true) {compareText = "Height: " + humanData['height'] + " inches  "};
-                if (boolWeight == true) {compareText = compareText + "Weight: " + humanData['weight'] + " lbs  "};
-                if (boolDiet == true) {compareText = compareText + "Diet: " + humanData['diet']};
-                workingObject['compare'] = compareText;
                 workingObject['fact'] = "";
                 workingObject['pic'] = "./images/human.png";
+
+            }
+// Create special pigeon object for grid
+            else if (dinoData[dinoCount]['name'] == "Pigeon")
+            {
+                workingObject['name'] = dinoData[dinoCount]['name'];
+                workingObject['fact'] = dinoData[dinoCount]['fact'];
+                workingObject['pic'] = "./images/" + dinoData[dinoCount]['name'] + ".png";
+                dinoCount++;
             }
 // Create all other objects for grid
             else
             {
+                workArray = [];
+                ranNum = 0
+                workArray.push(dinoData[dinoCount]['where']);
+                workArray.push(dinoData[dinoCount]['when']);
+                workArray.push(dinoData[dinoCount]['fact']);
                 workingObject['name'] = dinoData[dinoCount]['name'];
-                if (boolHeight == true) {compareText = "Height: " + dinoData[dinoCount].getHeight() + " inches  "};
-                if (boolWeight == true) {compareText = compareText + "Weight: " + dinoData[dinoCount].getWeight() + " lbs  "};
-                if (boolDiet == true) {compareText = compareText + "Diet: " + dinoData[dinoCount].getDiet()};
-                workingObject['compare'] = compareText;
-                workingObject['fact'] = dinoData[dinoCount].getFact();
+                if (boolHeight == true) {workArray.push(dinoData[dinoCount].getHeight(humanData));}
+                if (boolWeight == true) {workArray.push(dinoData[dinoCount].getWeight(humanData));}
+                if (boolDiet == true) {workArray.push(dinoData[dinoCount].getDiet(humanData));}
+                ranNum = Math.floor(Math.random() *(workArray.length));
+                workingObject['fact'] = workArray[ranNum];
                 workingObject['pic'] = "./images/" + dinoData[dinoCount]['name'] + ".png";
-                dinoCount++
+                dinoCount++;
             }
             tileArray.push(workingObject);
         }
@@ -150,32 +163,71 @@ function submitted(event)
 // Facts = Where , When , Fact
 function DinoConstructor (name,weight,height,diet,location,timeframe,fact)
 {
-    if (name == "Pigeon")
+    this.name = name;
+    this.weight = weight;
+    this.height = height;
+    this.diet = diet;
+    this.where = this.name + " were located in " + location;
+    this.when = this.name + " lived during the " + timeframe;
+    this.fact = fact;   
+}
+
+// Create Dino Compare Method 1 - Height
+DinoConstructor.prototype.getHeight = function(humanObj)
+{
+    if (humanObj.height == this.height)
     {
-        this.name = name;
-        this.weight = weight;
-        this.height = height;
-        this.diet = diet;
-        this.fact = [fact,fact,fact];
+        return "You and " + this.name + "are the exact same height.";
+    }
+    else if (humanObj.height > this.height)
+    {
+        return "You are " + (humanObj.height - this.height) + " inches taller than " + this.name + ".";
     }
     else
     {
-        this.name = name;
-        this.weight = weight;
-        this.height = height;
-        this.diet = diet;
-        this.fact = [this.name + " were located in " + location,this.name + " lived during the " + timeframe + " period",fact];
-        
+        return "You are " + (this.height - humanObj.height) + " inches shorter than " + this.name + ".";
     }
 }
-// Create Dino Compare Method 1 - Height
-DinoConstructor.prototype.getHeight = function() {return this.height};
 // Create Dino Compare Method 2 - Weight
-DinoConstructor.prototype.getWeight = function() {return this.weight};
+DinoConstructor.prototype.getWeight = function(humanObj) 
+{
+    if (humanObj.weight > this.weight)
+    {
+        let diff = humanObj.weight/this.weight;
+        if (Math.round(diff) == 0)
+        {
+            return "You and " + this.name + " are close to the same weight.";
+        }
+        else
+        {
+            return "You are " + Math.round(diff) + " times heavier than " + this.name + ".";
+        }
+    }
+    else
+    {
+        let diff = this.weight/humanObj.weight;
+        if (Math.round(diff) == 0)
+        {
+            return "You and " + this.name + " are close to the same weight.";
+        }
+        else
+        {
+            return this.name + " is " + Math.round(diff) + " times heavier than you.";
+        }
+    }
+}
 // Create Dino Compare Method 3 - Diet
-DinoConstructor.prototype.getDiet = function() {return this.diet};
-// Create Method for random fact
-DinoConstructor.prototype.getFact = function() {return this.fact[Math.floor(Math.random() *3)]};
+DinoConstructor.prototype.getDiet = function(humanObj)
+{
+    if (humanObj.diet == this.diet)
+    {
+        return "You and " + this.name + " have the same diet, you are both a " + this.diet;
+    }
+    else
+    {
+        return this.name + " has a different diet then you, they were a "  + this.diet;
+    }
+}
 
 // On button click, prepare and display infographic
 let submitButton = document.querySelector('#btn');
@@ -191,6 +243,5 @@ fetch("https://raw.githubusercontent.com/udacity/Javascript/master/dino.json")
     tempDinoData.forEach(function(dino)
     {
         dinoData.push(new DinoConstructor (dino.species,dino.weight,dino.height,dino.diet,dino.where,dino.when,dino.fact));
-        console.log(dinoData);
     })
 })
